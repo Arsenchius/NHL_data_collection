@@ -130,11 +130,11 @@ def aggregate_data_for_future() -> NoReturn:
     for column in future_games.columns[3:]:
         cols[column] = "h_" + column
     future_games = future_games.rename(columns=cols)
-    future_games = future_games.join(df.set_index("team"), on="guest_team")
+    future_games = future_games.join(overall_table.set_index("team"), on="guest_team")
     for column in cols:
         temp = cols[column]
         cols[column] = "g" + temp[1:]
     future_games = future_games.rename(columns=cols)
     future_games = future_games.join(table_home.set_index("team"), on="home_team")
     future_games = future_games.join(table_guest.set_index("team"), on="guest_team")
-    future_games.to_json("data/next_tour_game.json")
+    future_games.to_json("data/next_tour_games.json", orient="records")
