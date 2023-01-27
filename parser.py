@@ -1,7 +1,16 @@
+import os
+
+os.environ["OMP_NUM_THREADS"] = "4"
+os.environ["OPENBLAS_NUM_THREADS"] = "4"
+os.environ["MKL_NUM_THREADS"] = "4"
+os.environ["VECLIB_MAXIMUM_THREADS"] = "4"
+os.environ["NUMEXPR_NUM_THREADS"] = "4"
+
 import requests
 import json
 import pandas as pd
 from datetime import datetime
+from multiprocessing import Process
 
 
 def get_block_data(data):
@@ -67,7 +76,7 @@ def get_table_data(block_data, name):
     df_table.to_json(name, orient="records")
 
 
-def parse_tables(header):
+def collect_tables(header):
     feed_table = "to_jZ2mBfIs_jkdXuB14_1"
     feed_table_home = "to_jZ2mBfIs_jkdXuB14_2"
     feed_table_guest = "to_jZ2mBfIs_jkdXuB14_3"
@@ -88,41 +97,75 @@ def parse_tables(header):
     get_table_data(block_data_guest, name="data/table_guest.json")
 
 
-def parse_results(header):
-    feed_table = "to_jZ2mBfIs_jkdXuB14_1"
-    url = f"https://d.flashscorekz.com/x/feed/{feed_table}"
-    response = requests.get(url=url, headers=header)
-    data = response.text.split(sep="¬")
-    block_data = [{}]
-    for item in data:
-        key = item.split(sep="÷")[0]
-        val = item.split(sep="÷")[-1]
+def collect_results(header, index):
+    feed = f"f_4_-{str(index)}_3_ru-kz_1"
+    url_table = f"https://d.flashscorekz.com/x/feed/{feed}"
+    data_table = requests.get(url=url_table, headers=header).text.split(sep="¬")
+    block_data_table = get_block_data(data_table)
+    cur_league = ""
+    results = []
+    column_names = [
+        "home_team",
+        "guest_team",
+        "home_score",
+        "guest_score",
+        "tie_in_ft",
+        "aot",
+        "shootout",
+        "date",
+    ]
+    for block in block_data_table:
+        if "~ZA" in block:
+            if block["~ZA"] == "США: НХЛ":
+                cur_league = "США: НХЛ"
+            else:
+                cur_league = "other"
 
-        if "~" in key:
-            block_data.append({key: val})
-        else:
-            block_data[-1].update({key: val})
+        if cur_league == "США: НХЛ":
+            if "AT" and "AU" in block.keys():
+                tie_in_full_time = 1
+                if block.get("BG") == block.get("BH"):
+                    aot = 0
+                    shootout = 1
+                else:
+                    aot = 1
+                    shootout = 0
+            else:
+                tie_in_full_time = 0
+                aot = 0
+                shootout = 0
+            if "CX" in block.keys():
+                results.append(
+                    [
+                        block.get("CX"),
+                        block.get("AF"),
+                        int(block.get("AG")),
+                        int(block.get("AH")),
+                        tie_in_full_time,
+                        aot,
+                        shootout,
+                        datetime.fromtimestamp(int(block.get("AD"))),
+                    ]
+                )
 
-    for event in block_data:
-        if "AA" in list(event.keys())[0]:
-            date = datetime.fromtimestamp(int(event.get("AD")))
-            team_1 = event.get("AE")
-            team_2 = event.get("AF")
-            score = f'{event.get("AG")}:{event.get("AH")}'
-            print(date, team_1, team_2, score, sep=",")
-        # result = game[]
-
-        # print(json.dumps(event, ensure_ascii=False, indent=2))
-        # print(all_leagues)
-
-    # print(block_data)
+    df = pd.DataFrame(results, columns=column_names)
+    name = "data/results_" + str(index + 1) + ".json"
+    df.to_json(name, orient="records")
 
 
-def main():
+def collect_data():
     header = {"x-fsign": "SW9D1eZo"}
-    parse_tables(header)
-    # parse_results(header)
+    collect_tables(header)
+    part_jobs = []
+    for index in range(8):
+        part_jobs.append(Process(target=collect_results, args=(header, index)))
+
+    for job in part_jobs:
+        job.start()
+
+    for job in part_jobs:
+        job.join()
 
 
 if __name__ == "__main__":
-    main()
+    collect_data()
