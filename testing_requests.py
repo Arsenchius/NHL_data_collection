@@ -4,7 +4,7 @@ from datetime import datetime
 
 
 def main():
-    feed = "f_4_-7_3_ru-kz_1"
+    feed = "f_4_1_3_ru-kz_1"
     url_table = f"https://d.flashscorekz.com/x/feed/{feed}"
     data_table = requests.get(
         url=url_table, headers={"x-fsign": "SW9D1eZo"}
@@ -22,11 +22,6 @@ def main():
     column_names = [
         "home_team",
         "guest_team",
-        "home_score",
-        "guest_score",
-        "tie_in_ft",
-        "aot",
-        "shootout",
         "date",
     ]
     for block in block_data_table:
@@ -37,28 +32,11 @@ def main():
                 cur_league = "other"
 
         if cur_league == "США: НХЛ":
-            if "AT" and "AU" in block.keys():
-                tie_in_full_time = 1
-                if block.get("BG") == block.get("BH"):
-                    aot = 0
-                    shootout = 1
-                else:
-                    aot = 1
-                    shootout = 0
-            else:
-                tie_in_full_time = 0
-                aot = 0
-                shootout = 0
             if "CX" in block.keys():
                 results.append(
                     [
                         block.get("CX"),
                         block.get("AF"),
-                        int(block.get("AG")),
-                        int(block.get("AH")),
-                        tie_in_full_time,
-                        aot,
-                        shootout,
                         datetime.fromtimestamp(int(block.get("AD"))),
                     ]
                 )
