@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from typing import List, Dict, NoReturn
+import datetime
 
 
 def get_block_data(data: List) -> List[Dict]:
@@ -66,8 +67,8 @@ def get_table_data(block_data: List[Dict], name: str) -> NoReturn:
     df_table.to_json(name, orient="records")
 
 
-def transform_tables() -> NoReturn:
-    table = pd.read_json("data/table.json")
+def transform_tables(folder: str) -> NoReturn:
+    table = pd.read_json(folder + "/table.json")
     overall_table = table.sort_values(by=["tp"], ascending=False).reset_index(drop=True)
     overall_table["pos"] = overall_table.index + 1
     overall_table["win_rate"] = overall_table["tw"] / overall_table["tm"]
@@ -85,9 +86,9 @@ def transform_tables() -> NoReturn:
     overall_table = overall_table.drop(
         ["tm", "tw", "twr", "two", "tl", "tlr", "tlo", "division"], axis=1
     )
-    overall_table.to_json("data/table.json", orient="records")
+    overall_table.to_json(folder + "/table.json", orient="records")
 
-    table_home = pd.read_json("data/table_home.json")
+    table_home = pd.read_json(folder + "/table_home.json")
     table_home["win_rate_home"] = table_home["tw"] / table_home["tm"]
     table_home["lose_rate_home"] = table_home["tl"] / table_home["tm"]
     table_home["sg_per_game_home"] = table_home["sg"] / table_home["tm"]
@@ -101,9 +102,9 @@ def transform_tables() -> NoReturn:
     table_home = table_home.drop(
         ["pos", "tm", "tw", "twr", "two", "tl", "tlr", "tlo", "division"], axis=1
     )
-    table_home.to_json("data/table_home.json", orient="records")
+    table_home.to_json(folder + "/table_home.json", orient="records")
 
-    table_guest = pd.read_json("data/table_guest.json")
+    table_guest = pd.read_json(folder + "/table_guest.json")
     table_guest["win_rate_guest"] = table_guest["tw"] / table_guest["tm"]
     table_guest["lose_rate_guest"] = table_guest["tl"] / table_guest["tm"]
     table_guest["sg_per_game_guest"] = table_guest["sg"] / table_guest["tm"]
@@ -117,14 +118,14 @@ def transform_tables() -> NoReturn:
     table_guest = table_guest.drop(
         ["pos", "tm", "tw", "twr", "two", "tl", "tlr", "tlo", "division"], axis=1
     )
-    table_guest.to_json("data/table_guest.json", orient="records")
+    table_guest.to_json(folder + "/table_guest.json", orient="records")
 
 
-def aggregate_data_for_future() -> NoReturn:
-    future_games = pd.read_json("data/next_tour_games.json")
-    overall_table = pd.read_json("data/table.json")
-    table_home = pd.read_json("data/table_home.json")
-    table_guest = pd.read_json("data/table_guest.json")
+def aggregate_data_for_future(folder: str) -> NoReturn:
+    future_games = pd.read_json(folder + "/next_tour_games.json")
+    overall_table = pd.read_json(folder + "/table.json")
+    table_home = pd.read_json(folder + "/table_home.json")
+    table_guest = pd.read_json(folder + "/table_guest.json")
     future_games = future_games.join(overall_table.set_index("team"), on="home_team")
     cols = {}
     for column in future_games.columns[3:]:
@@ -137,4 +138,27 @@ def aggregate_data_for_future() -> NoReturn:
     future_games = future_games.rename(columns=cols)
     future_games = future_games.join(table_home.set_index("team"), on="home_team")
     future_games = future_games.join(table_guest.set_index("team"), on="guest_team")
-    future_games.to_json("data/next_tour_games.json", orient="records")
+    future_games.to_json(folder + "/next_tour_games.json", orient="records")
+
+
+def prepare_data(folder: str) -> NoReturn:
+    results_table = pd.read_json(folder + "/results_1.json")
+    prev_day = datetime.datetime.today() - datetime.timedelta(days=1)
+    prev_date = str(prev_day.day) + "." + str(prev_day.month)
+    folder_prev = f"data_{prev_date}"
+    tour_games = pd.read_json(folder_prev + "/next_tour_games.json")
+    df = pd.merge(
+        tour_games,
+        results_table,
+        left_on=["home_team", "guest_team", "date"],
+        how="left",
+        right_on=["home_team", "guest_team", "date"],
+    )
+    df["total>5.5"] = np.where(df["home_score"] + df["guest_score"] > 5.5, 1, 0)
+    conditions = [
+        df["home_score"] > df["guest_score"],
+        df["home_score"] < df["guest_score"],
+    ]
+    choices = ["home", "guest"]
+    df["winner"] = np.select(conditions, choices, default=None)
+    df.to_json(f"training_data/{prev_date}.json", orient="records")
