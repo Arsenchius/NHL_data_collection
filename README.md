@@ -96,4 +96,11 @@ After all aggregations, final data for training model will be in `next_tour_game
     "sg_per_game_guest": 3.1818181818, - guest team goals scored per away game
     "cg_per_game_guest": 3.7272727273, - guest team goals against per away game
     "tie_ft_rate_guest": 0.3636363636 - guest team draw rate in away game
+    "home_score": 4, - home team scored goals in this game
+    "guest_score": 2, - guest team scored goals in this game
+    "tie_in_ft": 0, - is game ended with draw
+    "aot": 0, - is game ended in OT
+    "shootout": 0, - is game ended in shootout
+    "total>5.5": 1, - is total of goals > 5.5
+    "winner": 1 - '1' if home team won the game, else '0'
 ```

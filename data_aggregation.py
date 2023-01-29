@@ -159,6 +159,6 @@ def prepare_data(folder: str) -> NoReturn:
         df["home_score"] > df["guest_score"],
         df["home_score"] < df["guest_score"],
     ]
-    choices = ["home", "guest"]
+    choices = [1, 0]
     df["winner"] = np.select(conditions, choices, default=None)
     df.to_json(f"training_data/{prev_date}.json", orient="records")
