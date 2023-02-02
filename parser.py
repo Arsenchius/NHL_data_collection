@@ -17,8 +17,10 @@ from data_aggregation import (
     transform_tables,
     get_block_data,
     get_table_data,
-    prepare_data
+    prepare_data,
 )
+
+fence = "-------------------------------------------------------------"
 
 
 def collect_tables(header: Dict, folder: str) -> NoReturn:
@@ -42,7 +44,7 @@ def collect_tables(header: Dict, folder: str) -> NoReturn:
     get_table_data(block_data_guest, name=folder + "/table_guest.json")
 
 
-def collect_results(header: Dict, index: int, folder: str) -> NoReturn:
+def collect_results(header: Dict, index: int, folder: str) -> str:
     feed = f"f_4_-{str(index)}_3_ru-kz_1"
     url_table = f"https://d.flashscorekz.com/x/feed/{feed}"
     data_table = requests.get(url=url_table, headers=header).text.split(sep="¬")
@@ -96,9 +98,13 @@ def collect_results(header: Dict, index: int, folder: str) -> NoReturn:
     df = pd.DataFrame(results, columns=column_names)
     name = folder + "/results_" + str(index + 1) + ".json"
     df.to_json(name, orient="records")
+    if df.empty:
+        return "no results today"
+    else:
+        return "ok"
 
 
-def get_future_games(header: Dict, folder: str) -> NoReturn:
+def get_future_games(header: Dict, folder: str) -> bool:
     feed = f"f_4_1_3_ru-kz_1"
     url_table = f"https://d.flashscorekz.com/x/feed/{feed}"
     data_table = requests.get(url=url_table, headers=header).text.split(sep="¬")
@@ -132,10 +138,12 @@ def get_future_games(header: Dict, folder: str) -> NoReturn:
     df.to_json(name, orient="records")
 
 
-def collect_data(folder:str) -> NoReturn:
+def collect_data(folder: str) -> NoReturn:
     header = {"x-fsign": "SW9D1eZo"}
     print("Collecting tables...")
     collect_tables(header, folder)
+    print("Table data collected!")
+    print(fence)
     print("Collecting game results...")
     # part_jobs = []
     # for index in range(8):
@@ -146,7 +154,12 @@ def collect_data(folder:str) -> NoReturn:
 
     # for job in part_jobs:
     #     job.join()
-    collect_results(header, index=0,folder=folder)
+    err = collect_results(header, index=0, folder=folder)
+    if err == "ok":
+        print("Games results collected!")
+    else:
+        print("No results of matches today(")
+    print(fence)
 
     print("Collecting future games...")
     get_future_games(header, folder)
@@ -154,11 +167,22 @@ def collect_data(folder:str) -> NoReturn:
 
 if __name__ == "__main__":
     today = date.today()
-    cur_date = str(today.day) + '.' + str(today.month)
-    folder = f'data_{cur_date}'
+    cur_date = str(today.day) + "." + str(today.month)
+    folder = f"data_{cur_date}"
     if not os.path.isdir(folder):
         os.mkdir(folder)
     collect_data(folder)
     transform_tables(folder)
-    aggregate_data_for_future(folder)
-    prepare_data(folder)
+    error = aggregate_data_for_future(folder)
+    if error == "ok":
+        print("Future games collected!")
+        print(fence)
+        resp = prepare_data(folder)
+        if resp != "ok":
+            print("No prepared data for training(")
+        else:
+            print("Data prepared for training!")
+        print(fence)
+    else:
+        print("No games tomorrow(")
+        print(fence)
