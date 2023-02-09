@@ -1,0 +1,22 @@
+[
+    {
+        "home_team": "\u0420\u0435\u0439\u043d\u0434\u0436\u0435\u0440\u0441",
+        "guest_team": "\u0412\u0430\u043d\u043a\u0443\u0432\u0435\u0440",
+        "home_score": 4,
+        "guest_score": 3,
+        "tie_in_ft": 0,
+        "aot": 0,
+        "shootout": 0,
+        "date": 1675915200000
+    },
+    {
+        "home_team": "\u0414\u0430\u043b\u043b\u0430\u0441",
+        "guest_team": "\u041c\u0438\u043d\u043d\u0435\u0441\u043e\u0442\u0430",
+        "home_score": 4,
+        "guest_score": 1,
+        "tie_in_ft": 0,
+        "aot": 0,
+        "shootout": 0,
+        "date": 1675917000000
+    }
+]
