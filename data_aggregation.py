@@ -124,7 +124,7 @@ def transform_tables(folder: str) -> NoReturn:
 def aggregate_data_for_future(folder: str) -> str:
     future_games = pd.read_json(folder + "/next_tour_games.json")
     if future_games.empty:
-        return 'no games tomorrow'
+        return "no games tomorrow"
     overall_table = pd.read_json(folder + "/table.json")
     table_home = pd.read_json(folder + "/table_home.json")
     table_guest = pd.read_json(folder + "/table_guest.json")
@@ -141,14 +141,17 @@ def aggregate_data_for_future(folder: str) -> str:
     future_games = future_games.join(table_home.set_index("team"), on="home_team")
     future_games = future_games.join(table_guest.set_index("team"), on="guest_team")
     future_games.to_json(folder + "/next_tour_games.json", orient="records")
-    return 'ok'
+    return "ok"
 
 
-def prepare_data(folder: str) -> str:
+def prepare_data(folder: str, day_type: str) -> str:
     results_table = pd.read_json(folder + "/results_1.json")
     if results_table.empty:
-        return 'no results'
-    prev_day = datetime.datetime.today() - datetime.timedelta(days=1)
+        return "no results"
+    if day_type == "yesterday":
+        prev_day = datetime.datetime.today() - datetime.timedelta(days=2)
+    else:
+        prev_day = datetime.datetime.today() - datetime.timedelta(days=1)
     prev_date = str(prev_day.day) + "." + str(prev_day.month)
     folder_prev = f"data_{prev_date}"
     tour_games = pd.read_json(folder_prev + "/next_tour_games.json")
@@ -167,4 +170,4 @@ def prepare_data(folder: str) -> str:
     choices = [1, 0]
     df["winner"] = np.select(conditions, choices, default=None)
     df.to_json(f"training_data/{prev_date}.json", orient="records")
-    return 'ok'
+    return "ok"

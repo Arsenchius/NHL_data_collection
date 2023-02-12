@@ -1,0 +1,82 @@
+[
+    {
+        "home_team": "\u0411\u043e\u0441\u0442\u043e\u043d",
+        "guest_team": "\u0412\u0430\u0448\u0438\u043d\u0433\u0442\u043e\u043d",
+        "home_score": 1,
+        "guest_score": 2,
+        "tie_in_ft": 0,
+        "aot": 0,
+        "shootout": 0,
+        "date": 1676158200000
+    },
+    {
+        "home_team": "\u0424\u043b\u043e\u0440\u0438\u0434\u0430",
+        "guest_team": "\u041a\u043e\u043b\u043e\u0440\u0430\u0434\u043e",
+        "home_score": 3,
+        "guest_score": 5,
+        "tie_in_ft": 0,
+        "aot": 0,
+        "shootout": 0,
+        "date": 1676167200000
+    },
+    {
+        "home_team": "\u041a\u0430\u0440\u043e\u043b\u0438\u043d\u0430",
+        "guest_team": "\u0420\u0435\u0439\u043d\u0434\u0436\u0435\u0440\u0441",
+        "home_score": 2,
+        "guest_score": 6,
+        "tie_in_ft": 0,
+        "aot": 0,
+        "shootout": 0,
+        "date": 1676170800000
+    },
+    {
+        "home_team": "\u0422\u043e\u0440\u043e\u043d\u0442\u043e",
+        "guest_team": "\u041a\u043e\u043b\u0430\u043c\u0431\u0443\u0441",
+        "home_score": 3,
+        "guest_score": 4,
+        "tie_in_ft": 0,
+        "aot": 0,
+        "shootout": 0,
+        "date": 1676170800000
+    },
+    {
+        "home_team": "\u041c\u0438\u043d\u043d\u0435\u0441\u043e\u0442\u0430",
+        "guest_team": "\u041d\u044c\u044e-\u0414\u0436\u0435\u0440\u0441\u0438",
+        "home_score": 3,
+        "guest_score": 2,
+        "tie_in_ft": 1,
+        "aot": 0,
+        "shootout": 1,
+        "date": 1676174400000
+    },
+    {
+        "home_team": "\u0421\u0435\u043d\u0442-\u041b\u0443\u0438\u0441",
+        "guest_team": "\u0410\u0440\u0438\u0437\u043e\u043d\u0430",
+        "home_score": 6,
+        "guest_score": 5,
+        "tie_in_ft": 1,
+        "aot": 1,
+        "shootout": 0,
+        "date": 1676174400000
+    },
+    {
+        "home_team": "\u0412\u0438\u043d\u043d\u0438\u043f\u0435\u0433",
+        "guest_team": "\u0427\u0438\u043a\u0430\u0433\u043e",
+        "home_score": 4,
+        "guest_score": 1,
+        "tie_in_ft": 0,
+        "aot": 0,
+        "shootout": 0,
+        "date": 1676181600000
+    },
+    {
+        "home_team": "\u041b\u043e\u0441-\u0410\u043d\u0434\u0436\u0435\u043b\u0435\u0441",
+        "guest_team": "\u041f\u0438\u0442\u0442\u0441\u0431\u0443\u0440\u0433",
+        "home_score": 6,
+        "guest_score": 0,
+        "tie_in_ft": 0,
+        "aot": 0,
+        "shootout": 0,
+        "date": 1676183400000
+    }
+]

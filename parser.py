@@ -10,6 +10,7 @@ import requests
 import json
 import pandas as pd
 from datetime import datetime, date, timedelta
+import time
 from multiprocessing import Process
 from typing import List, Dict, NoReturn
 from data_aggregation import (
@@ -62,6 +63,7 @@ def collect_results(header: Dict, index: int, folder: str) -> str:
         "shootout",
         "date",
     ]
+    current_time = datetime.now()
     for block in block_data_table:
         if "~ZA" in block:
             if block["~ZA"] == "США: НХЛ":
@@ -83,18 +85,20 @@ def collect_results(header: Dict, index: int, folder: str) -> str:
                 aot = 0
                 shootout = 0
             if "CX" in block.keys():
-                results.append(
-                    [
-                        block.get("CX"),
-                        block.get("AF"),
-                        int(block.get("AG")),
-                        int(block.get("AH")),
-                        tie_in_full_time,
-                        aot,
-                        shootout,
-                        datetime.fromtimestamp(int(block.get("AD"))),
-                    ]
-                )
+                game_time = datetime.fromtimestamp(int(block.get("AD")))
+                if game_time < current_time:
+                    results.append(
+                        [
+                            block.get("CX"),
+                            block.get("AF"),
+                            int(block.get("AG")),
+                            int(block.get("AH")),
+                            tie_in_full_time,
+                            aot,
+                            shootout,
+                            game_time,
+                        ]
+                    )
 
     df = pd.DataFrame(results, columns=column_names)
     name = folder + "/results_1.json"
@@ -187,7 +191,7 @@ def run(args):
     if error == "ok":
         print("Future games collected!")
         print(fence)
-        resp = prepare_data(folder)
+        resp = prepare_data(folder, day)
         if resp != "ok":
             print("No prepared data for training(")
         else:
