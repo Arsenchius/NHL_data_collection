@@ -1,4 +1,4 @@
-# Prediction Model for NHL
+# Collecting data from NHL
 
 ### Description
 
